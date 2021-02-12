@@ -35,6 +35,20 @@ int main(){
             break;
         }
         int pTeam = ReadMem(processHandle, player + hazedumper::netvars::m_iTeamNum);
+        
+        uintptr_t crosshair = ReadMem(processHandle, player + hazedumper::netvars::m_iCrosshairId );
+        if (crosshair != 0 && crosshair < MAXPLAYERS) {
+            uintptr_t playerInCrosshair = ReadMem(processHandle, base + hazedumper::signatures::dwEntityList + (crosshair - 1) * 16);
+            if (playerInCrosshair != NULL) {
+                int playerTeam = ReadMem(processHandle, playerInCrosshair + hazedumper::netvars::m_iTeamNum);
+
+                if (playerTeam != pTeam) {
+                    WriteMem(processHandle, base + hazedumper::signatures::dwForceAttack, 5);
+                    Sleep(12);
+                    WriteMem(processHandle, base + hazedumper::signatures::dwForceAttack, 4);
+                }
+            }
+        }
         for (USHORT i = 0; i < MAXPLAYERS; i++){
             uintptr_t otherPlayer = ReadMem(processHandle, base + hazedumper::signatures::dwEntityList + i * 16);
             if (otherPlayer != NULL) {
